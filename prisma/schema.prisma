@@ -1,0 +1,215 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  role          String    @default("CUSTOMER")
+  status        String    @default("ACTIVE")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  customer  Customer?
+  vendor    Vendor?
+}
+
+model Customer {
+  id                  String           @id @default(cuid())
+  userId              String           @unique
+  firstName           String
+  lastName            String
+  email               String
+  phone               String?
+  preferredContact    String           @default("email")
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serviceRequests     ServiceRequest[]
+}
+
+model Vendor {
+  id                    String              @id @default(cuid())
+  userId                String              @unique
+  businessName          String
+  contactName           String
+  email                 String
+  phone                 String
+  address               String
+  website               String?
+  description           String?
+  logo                  String?
+  status                String              @default("PENDING")
+  licenseInformation    String?
+  insuranceInformation  String?
+  yearsInBusiness       Int?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  services              VendorService[]
+  serviceAreas          VendorServiceArea[]
+  leads                 Lead[]
+}
+
+model Service {
+  id          String          @id @default(cuid())
+  name        String
+  description String?
+  icon        String?
+  active      Boolean         @default(true)
+  featured    Boolean         @default(false)
+  sortOrder   Int             @default(999)
+  parentId    String?
+  // Marks the "Other" catch-all category: picking it collects free text from
+  // the customer instead of a sub-service. Explicit flag so the picker never
+  // depends on the service being *named* "Other".
+  isCatchAll  Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  parent       Service?  @relation("ServiceTree", fields: [parentId], references: [id], onDelete: SetNull)
+  subServices  Service[] @relation("ServiceTree")
+
+  vendorServices     VendorService[]
+  serviceRequests    ServiceRequest[]
+
+  // The "leaf-only services" query filters on parentId to separate categories
+  // from their children. Declared here so the index is generated into
+  // schema.sql; it was created by migration 20260922000002 but missing from the
+  // datamodel, so a datamodel-derived DDL would have silently dropped it.
+  @@index([parentId])
+}
+
+model VendorService {
+  id        String  @id @default(cuid())
+  vendorId  String
+  serviceId String
+
+  vendor  Vendor  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([vendorId, serviceId])
+}
+
+model VendorServiceArea {
+  id       String @id @default(cuid())
+  vendorId String
+  zipCode  String
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@unique([vendorId, zipCode])
+}
+
+model ServiceRequest {
+  id                     String          @id @default(cuid())
+  customerId             String
+  serviceId              String
+  zipCode                String
+  description            String
+  preferredContactMethod String          @default("email")
+  urgency                String          @default("NORMAL")
+  additionalNotes        String?
+  // Customer free-text describing the service, used when they pick the
+  // "Other" category instead of a specific sub-service.
+  otherServiceText       String?
+  status                 String          @default("NEW")
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+  matchedVendors         Json?           // Admin-only snapshot of vendors matched at request time
+
+  customer   Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  service    Service       @relation(fields: [serviceId], references: [id])
+  leads      Lead[]
+  files      File[]
+  feedback   CustomerFeedback?
+}
+
+model File {
+  id          String   @id @default(cuid())
+  requestId   String
+  fileName    String
+  fileType    String
+  storagePath String
+  fileSize    Int
+  createdAt   DateTime @default(now())
+
+  serviceRequest ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+}
+
+model Lead {
+  id               String          @id @default(cuid())
+  serviceRequestId String
+  vendorId         String?
+  status           String          @default("NEW")
+  assignedAt       DateTime?
+  sentAt           DateTime?
+  contactedAt      DateTime?
+  closedAt         DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  serviceRequest  ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  vendor          Vendor?        @relation(fields: [vendorId], references: [id])
+  project         Project?
+  payment         Payment?
+}
+
+model Project {
+  id             String    @id @default(cuid())
+  leadId         String    @unique
+  status         String    @default("PENDING")
+  estimatedValue Float?
+  finalValue     Float?
+  wonDate        DateTime?
+  lostReason     String?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id          String    @id @default(cuid())
+  vendorId    String?
+  leadId      String?   @unique
+  projectId   String?
+  paymentType String
+  amount      Float
+  status      String    @default("PENDING")
+  paymentDate DateTime?
+  createdAt   DateTime  @default(now())
+
+  lead Lead? @relation(fields: [leadId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model CustomerFeedback {
+  id               String   @id @default(cuid())
+  serviceRequestId String   @unique
+  rating           Int
+  hearAbout        String
+  useAgain         String
+  recommend        String
+  comment          String?
+  createdAt        DateTime @default(now())
+
+  serviceRequest ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+}

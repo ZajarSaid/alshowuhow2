@@ -1,0 +1,26 @@
+# Dev-only image for ALshowUhow. Not for production (prod deploys to Vercel).
+FROM node:22-alpine
+
+# libssl/openssl are needed by Prisma engines on Alpine.
+RUN apk add --no-cache libc6-compat openssl
+
+WORKDIR /app
+
+# Install deps first so this layer is cached unless the manifests change.
+# Using `npm install` (not `npm ci`) because the committed lockfile is out of
+# sync with package.json; this resolves deps against package.json at build time.
+COPY package.json package-lock.json ./
+RUN npm install
+
+# Generate the Prisma client (schema is copied so `postinstall`/generate has it).
+COPY prisma ./prisma
+COPY prisma.config.ts ./
+RUN npx prisma generate
+
+# The rest of the source is bind-mounted at runtime by docker-compose,
+# so we don't COPY it here — this keeps the image lean and enables hot reload.
+
+EXPOSE 3000
+
+# Bind to 0.0.0.0 so the dev server is reachable from the host.
+CMD ["npm", "run", "dev", "--", "-H", "0.0.0.0", "-p", "3000"]

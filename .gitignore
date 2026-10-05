@@ -1,0 +1,59 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# databases (local SQLite — production uses remote Turso/libsql)
+/dev.db
+/dev.db-journal
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+/src/generated/prisma
+
+# Cypress artifact captures
+cypress/screenshots/
+cypress/videos/
+
+# Vendor purge backups: contain vendor emails, never commit these.
+purge-demo-backup-*.json
+
+# Client-facing testing manual: contains the live admin password. It was
+# committed by mistake in 6260043 and untracked here, but removing it now does
+# not remove it from history — the password must be rotated regardless.
+ALSHOWUHOW_TESTING_MANUAL.txt

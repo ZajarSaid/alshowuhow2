@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F7F8FC;
+  --foreground: #172554;
+  --crimson: #C92535;
+  --crimson-dark: #A81E2B;
+  /* Crimson tuned for text on the dark purple/brand-blue gradient. The base
+     --crimson is only 2.03:1 on --purple and 1.84:1 on --blue, which fails
+     WCAG AA even for large text. This is 4.97:1 / 4.52:1. */
+  --crimson-light: #FF8A94;
+  --purple: #4B1E8E;
+  --purple-dark: #3A1770;
+  --light-purple: #6D4BC3;
+  --blue: #183B8F;
+  --blue-dark: #142F73;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-crimson: var(--crimson);
+  --color-crimson-dark: var(--crimson-dark);
+  --color-crimson-light: var(--crimson-light);
+  --color-purple: var(--purple);
+  --color-purple-dark: var(--purple-dark);
+  --color-light-purple: var(--light-purple);
+  --color-brand-blue: var(--blue);
+  --color-brand-blue-dark: var(--blue-dark);
+  --color-light-bg: #F7F8FC;
+  --color-dark-text: #172554;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (pointer: coarse) {
+  select,
+  input,
+  textarea {
+    font-size: 16px;
+  }
+}

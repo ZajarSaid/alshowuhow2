@@ -1,0 +1,112 @@
+{
+  "localeName": "Español",
+  "nav": {
+    "home": "Inicio",
+    "needService": "Necesito un Servicio",
+    "forVendors": "Para Vendedores",
+    "login": "Iniciar Sesión",
+    "dashboard": "Panel",
+    "signOut": "Cerrar Sesión",
+    "toggleMenu": "Abrir menú",
+    "switchLanguage": "Cambiar idioma",
+    "languageLabel": "Idioma"
+  },
+  "footer": {
+    "tagline": "Conectamos a clientes con proveedores de servicios locales calificados.",
+    "forCustomers": "Para Clientes",
+    "requestService": "Solicitar un Servicio",
+    "forVendors": "Para Vendedores",
+    "joinAsVendor": "Únete como Vendedor",
+    "vendorDashboard": "Panel de Vendedores",
+    "login": "Iniciar Sesión",
+    "rightsReserved": "Todos los derechos reservados."
+  },
+  "hero": {
+    "slideOneTitleLead": "Encuentra Proveedores",
+    "slideOneTitleAccent": "Locales de Confianza",
+    "slideOneBody": "Dinos lo que necesitas y te conectaremos con profesionales calificados en tu área.",
+    "ctaService": "Necesito un Servicio",
+    "ctaVendor": "Únete como Vendedor — GRATIS"
+  },
+  "tvShow": {
+    "title": "Programa de TV de ALshowUhow",
+    "tagline": "¡Haz que tu Negocio Aparezca en TV!",
+    "bodyLead": "ALshowUhow está llevando a los vendedores y negocios al reflector, mostrando sus servicios en",
+    "bodyHighlight": "el programa de TV de ALshowUhow",
+    "bodyTail": "y ayudándolos a llegar a una audiencia más amplia.",
+    "cta": "¡Regístrate y hazte visible!"
+  },
+  "stats": {
+    "categories": "Categorías de Servicios",
+    "vendorNetwork": "Red de Vendedores en Crecimiento",
+    "requestsFulfilled": "Solicitudes Atendidas",
+    "customerSatisfaction": "Satisfacción del Cliente"
+  },
+  "categories": {
+    "title": "Categorías de Servicios",
+    "subtitle": "Explora nuestras categorías de servicios disponibles o dinos lo que necesitas."
+  },
+  "howItWorks": {
+    "title": "Cómo Funciona ALshowUhow",
+    "subtitle": "Conectar con el profesional adecuado es sencillo.",
+    "stepLabel": "Paso {number}",
+    "step1Title": "Dinos Lo Que Necesitas",
+    "step1Body": "Selecciona un servicio, ingresa tu código postal y describe tu proyecto.",
+    "step2Title": "Encontramos Profesionales Locales",
+    "step2Body": "Nuestro sistema empareja tu solicitud con vendedores calificados en tu área.",
+    "step3Title": "Los Vendedores Te Contactan",
+    "step3Body": "El vendedor seleccionado se pondrá en contacto contigo",
+    "step4Title": "Hazlo Realizar",
+    "step4Body": "ALshowUhow encontrará al vendedor adecuado para tu proyecto y hará que el trabajo se realice."
+  },
+  "form": {
+    "title": "Necesito un Servicio",
+    "subtitle": "Completa el formulario y te conectaremos con profesionales locales.",
+    "stepOf": "Paso {current} de {total}",
+    "steps": [
+      "Servicio",
+      "Ubicación",
+      "Detalles del Proyecto",
+      "Información de Contacto",
+      "Revisión"
+    ],
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "submit": "Enviar Solicitud",
+    "submitting": "Enviando...",
+    "selectCategory": "Seleccionar Categoría",
+    "selectService": "Seleccionar Servicio",
+    "zipCode": "Código Postal",
+    "description": "Descripción",
+    "name": "Nombre",
+    "email": "Correo Electrónico",
+    "phone": "Teléfono",
+    "preferredContact": "Contacto Preferido",
+    "urgency": "Urgencia",
+    "additionalNotes": "Notas Adicionales",
+    "otherService": "Otro (especificar)",
+    "required": "Requerido",
+    "successTitle": "¡Solicitud Enviada!",
+    "successBody": "Te conectaremos con proveedores calificados en breve."
+  },
+  "auth": {
+    "vendorSignIn": "Iniciar Sesión como Proveedor",
+    "signInToAccount": "Inicia sesión en tu cuenta de proveedor",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "signIn": "Iniciar Sesión",
+    "signingIn": "Iniciando sesión...",
+    "invalidCredentials": "Credenciales inválidas",
+    "somethingWentWrong": "Algo salió mal"
+  },
+  "dashboard": {
+    "vendorDashboard": "Panel de Proveedores",
+    "welcomeBack": "Bienvenido de vuelta{businessName ? `, ${businessName}` : \"\"}",
+    "settings": "Configuración",
+    "signOut": "Cerrar sesión",
+    "newLeads": "Nuevos Leads",
+    "inProgress": "En Progreso",
+    "won": "Ganados",
+    "lost": "Perdidos"
+  }
+}

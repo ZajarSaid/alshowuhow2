@@ -1,0 +1,112 @@
+{
+  "localeName": "English",
+  "nav": {
+    "home": "Home",
+    "needService": "I Need a Service",
+    "forVendors": "For Vendors",
+    "login": "Login",
+    "dashboard": "Dashboard",
+    "signOut": "Sign out",
+    "toggleMenu": "Toggle menu",
+    "switchLanguage": "Switch language",
+    "languageLabel": "Language"
+  },
+  "footer": {
+    "tagline": "Connecting customers with qualified local service providers.",
+    "forCustomers": "For Customers",
+    "requestService": "Request a Service",
+    "forVendors": "For Vendors",
+    "joinAsVendor": "Join as a Vendor",
+    "vendorDashboard": "Vendor Dashboard",
+    "login": "Login",
+    "rightsReserved": "All rights reserved."
+  },
+  "hero": {
+    "slideOneTitleLead": "Find Trusted Local",
+    "slideOneTitleAccent": "Service Providers",
+    "slideOneBody": "Tell us what you need and we'll connect you with qualified professionals in your area.",
+    "ctaService": "I Need a Service",
+    "ctaVendor": "Join as a Vendor — FREE"
+  },
+  "tvShow": {
+    "title": "ALshowUhow TV Show",
+    "tagline": "Get Your Business on TV!",
+    "bodyLead": "ALshowUhow is bringing vendors and businesses into the spotlight, showcasing their services on",
+    "bodyHighlight": "ALshowUhow TV show",
+    "bodyTail": "and helping them reach a wider audience.",
+    "cta": "Sign up and get noticed!"
+  },
+  "stats": {
+    "categories": "Service Categories",
+    "vendorNetwork": "Growing Vendor Network",
+    "requestsFulfilled": "Requests Fulfilled",
+    "customerSatisfaction": "Customer Satisfaction"
+  },
+  "categories": {
+    "title": "Service Categories",
+    "subtitle": "Browse our available service categories or tell us what you need."
+  },
+  "howItWorks": {
+    "title": "How ALshowUhow Works",
+    "subtitle": "Getting connected with the right professional is simple.",
+    "stepLabel": "Step {number}",
+    "step1Title": "Tell Us What You Need",
+    "step1Body": "Select a service, enter your ZIP code, and describe your project.",
+    "step2Title": "We Find Local Pros",
+    "step2Body": "Our system matches your request with qualified vendors in your area.",
+    "step3Title": "Vendors Contact You",
+    "step3Body": "Selected vendor will reach out",
+    "step4Title": "Get It Done",
+    "step4Body": "ALshowUhow will find the right vendor for your project and get the work done."
+  },
+  "form": {
+    "title": "I Need a Service",
+    "subtitle": "Fill out the form below and we'll match you with local professionals.",
+    "stepOf": "Step {current} of {total}",
+    "steps": [
+      "Service",
+      "Location",
+      "Project Details",
+      "Contact Info",
+      "Review"
+    ],
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit Request",
+    "submitting": "Submitting...",
+    "selectCategory": "Select Category",
+    "selectService": "Select Service",
+    "zipCode": "ZIP Code",
+    "description": "Description",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "preferredContact": "Preferred Contact",
+    "urgency": "Urgency",
+    "additionalNotes": "Additional Notes",
+    "otherService": "Other (please specify)",
+    "required": "Required",
+    "successTitle": "Request Submitted!",
+    "successBody": "We'll connect you with qualified providers shortly."
+  },
+  "auth": {
+    "vendorSignIn": "Vendor Sign In",
+    "signInToAccount": "Sign in to your vendor account",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in...",
+    "invalidCredentials": "Invalid credentials",
+    "somethingWentWrong": "Something went wrong"
+  },
+  "dashboard": {
+    "vendorDashboard": "Vendor Dashboard",
+    "welcomeBack": "Welcome back{businessName ? `, ${businessName}` : \"\"}",
+    "settings": "Settings",
+    "signOut": "Sign out",
+    "newLeads": "New Leads",
+    "inProgress": "In Progress",
+    "won": "Won",
+    "lost": "Lost"
+  }
+}

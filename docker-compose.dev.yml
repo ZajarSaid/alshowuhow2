@@ -1,0 +1,26 @@
+# Dev environment for ALshowUhow.
+#   Start:  docker compose -f docker-compose.dev.yml up --build
+#   Stop:   docker compose -f docker-compose.dev.yml down
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      # Local SQLite file inside the container (persisted via the volume below).
+      DATABASE_URL: "file:./dev.db"
+      NEXTAUTH_URL: "http://localhost:3000"
+      # Next.js file-watching is more reliable in containers with polling.
+      WATCHPACK_POLLING: "true"
+    volumes:
+      # Bind-mount source for hot reload...
+      - .:/app
+      # ...but keep container-built node_modules and .next (don't shadow with host copies).
+      - /app/node_modules
+      - /app/.next
+    # Keeps dev.db from being lost when the container is recreated.
+    # (dev.db lives in the bind-mounted project dir, so it persists on the host.)
