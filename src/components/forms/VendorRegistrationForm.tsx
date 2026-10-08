@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 type DbService = { id: string; name: string; icon: string; description: string };
 type ServiceCategory = DbService & { subServices: DbService[] };
@@ -118,12 +119,12 @@ export default function VendorRegistrationForm() {
         <p className="text-dark-text/60">
           We&apos;ll review your application and get back to you at <span className="font-medium">{data.email}</span> within 1-2 business days.
         </p>
-        <a
+        <Link
           href="/"
           className="inline-block mt-6 px-6 py-3 rounded-lg bg-purple text-white font-medium hover:bg-light-purple transition-colors"
         >
           Go home
-        </a>
+        </Link>
       </div>
     );
   }

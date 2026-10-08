@@ -126,10 +126,7 @@ const findHardcodedProse = (code: string): string[] => {
 
 const render = (node: React.ReactNode, locale: Locale = "en") =>
   renderToStaticMarkup(
-    createElement(I18nProvider, {
-      value: { locale, t: DICTIONARIES[locale] },
-      children: node,
-    }),
+    createElement(I18nProvider, { value: { locale, t: DICTIONARIES[locale] } }, node),
   );
 
 describe("locale configuration", () => {
@@ -263,7 +260,9 @@ describe("placeholder substitution", () => {
         const left = value.match(/\{\w+\}/g) ?? [];
         if (path === "form.steps") continue; // array, not a templated string
         if (path === "form.stepOf") continue; // has {current} and {total}
-        const whitelist = new Set(["howItWorks.stepLabel"]);
+        // dashboard.welcomeBack is filled by VendorDashboard.tsx, which substitutes
+        // the business name itself so the comma only appears when there is a name.
+        const whitelist = new Set(["howItWorks.stepLabel", "dashboard.welcomeBack"]);
         const expected = whitelist.has(path) ? 1 : 0;
         expect(left.length, `${name}.${path} has an unfilled placeholder`).to.equal(
           expected,

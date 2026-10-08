@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run db:check-drift:required && npm run build",
-  "installCommand": "npm ci --include=dev"
+  "buildCommand": "npm run build",
+  "installCommand": "npm ci --include=dev",
+  "regions": ["iad1"]
 }

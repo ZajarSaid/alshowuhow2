@@ -101,7 +101,7 @@
   },
   "dashboard": {
     "vendorDashboard": "Panel de Proveedores",
-    "welcomeBack": "Bienvenido de vuelta{businessName ? `, ${businessName}` : \"\"}",
+    "welcomeBack": "Bienvenido de vuelta{businessName}",
     "settings": "Configuración",
     "signOut": "Cerrar sesión",
     "newLeads": "Nuevos Leads",

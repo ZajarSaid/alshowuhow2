@@ -3,10 +3,15 @@
 //
 // Destructive commands must never be one mistyped environment variable away from
 // wiping production, so they are chained after this check in package.json.
+//
+// The remote-URL rule is shared with src/lib/db-url.ts so this guard and the
+// app's own connection logic can never disagree about the target.
+
+import { isRemoteDatabaseUrl } from "../src/lib/db-url";
 
 const url = process.env.DATABASE_URL || "";
 
-if (url.startsWith("libsql") || url.startsWith("https://")) {
+if (isRemoteDatabaseUrl(url)) {
   const target = url.replace(/\?.*$/, "").replace(/:\/\/[^@]*@/, "://***@");
   console.error(
     "\nREFUSING TO RUN A DESTRUCTIVE DATABASE COMMAND.\n\n" +

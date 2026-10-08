@@ -6,12 +6,22 @@ import path from "path";
 const ROOT = path.resolve(__dirname, "..", "..");
 const FAKE_PROD_URL = "libsql://user:pass@fake-prod-db.turso.io?authToken=sup3r-s3cret-token";
 
+/**
+ * Runs a script through the local tsx and returns its exit code and combined output.
+ *
+ * `shell: true` is required, not incidental. On Windows `npx` is a `.cmd` shim, and
+ * `execFileSync` cannot spawn a `.cmd` without a shell - it fails with ENOENT before
+ * the script ever runs. That made all five script assertions in this file report an
+ * empty output and exit code 1 on Windows while passing on Linux CI, which hid the
+ * fact that the guard scripts themselves were fine.
+ */
 function run(script: string, env: Record<string, string>) {
   try {
     const stdout = execFileSync("npx", ["tsx", script], {
       cwd: ROOT,
       env: { ...process.env, ...env },
       encoding: "utf8",
+      shell: true,
       stdio: ["ignore", "pipe", "pipe"],
       timeout: 120_000,
     });
@@ -51,6 +61,9 @@ describe("demo data must never reach production", () => {
     expect(code).toBe(1);
   });
 
+  // Generous timeout: this one runs `prisma migrate deploy` and a full seed against
+  // a scratch database, which is tens of seconds of real work. The default 5s budget
+  // is fine for the refusal assertions, which exit almost immediately.
   it("allows seeding a local SQLite database", () => {
     // A scratch file, never ./dev.db: seeding is destructive, and this suite
     // must not overwrite the developer's local data.
@@ -62,6 +75,7 @@ describe("demo data must never reach production", () => {
       cwd: ROOT,
       env: { ...process.env, DATABASE_URL: `file:${scratch}` },
       encoding: "utf8",
+      shell: true,
       stdio: ["ignore", "pipe", "pipe"],
       timeout: 180_000,
     });
@@ -78,7 +92,7 @@ describe("demo data must never reach production", () => {
 
     expect(code).toBe(0);
     expect(output).toContain("Seed complete!");
-  });
+  }, 240_000);
 
   it("scripts/assert-local-db.ts blocks destructive commands on a remote database", () => {
     const { code, output } = run("scripts/assert-local-db.ts", {

@@ -12,7 +12,7 @@ async function getRoleFromSession(request: NextRequest): Promise<string | null> 
 /**
  * Serves the admin console on its own host (e.g. admin.alshowuhow.com).
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const host = (request.headers.get("host") ?? "").toLowerCase();
   const { pathname } = request.nextUrl;
   const isAdminHost = host.startsWith("admin.");

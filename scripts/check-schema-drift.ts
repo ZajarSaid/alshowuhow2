@@ -1,4 +1,8 @@
+import "dotenv/config";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { createClient, type Client } from "@libsql/client";
+import { cleanAuthToken } from "../src/lib/db-credentials";
 
 /**
  * Fails when a live database is missing any column the Prisma datamodel declares.
@@ -43,9 +47,6 @@ interface ColumnSpec {
 }
 
 function parseSchemaSql(): ColumnSpec[] {
-  const { readFileSync } = require("fs") as typeof import("fs");
-  const path = require("path") as typeof import("path");
-
   const schema = readFileSync(path.join(process.cwd(), "prisma", "schema.sql"), "utf-8");
 
   const specs: ColumnSpec[] = [];
@@ -94,7 +95,9 @@ async function main() {
     (urlArg ? urlArg.slice("--url=".length) : undefined) ??
     process.env.TURSO_DATABASE_URL ??
     process.env.DATABASE_URL;
-  const authToken = process.env.TURSO_AUTH_TOKEN ?? process.env.DATABASE_AUTH_TOKEN;
+  const authToken = cleanAuthToken(
+    process.env.TURSO_AUTH_TOKEN ?? process.env.DATABASE_AUTH_TOKEN,
+  );
 
   if (!url) {
     if (required) {

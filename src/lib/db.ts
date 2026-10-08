@@ -1,16 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import path from "path";
+import { cleanAuthToken } from "@/lib/db-credentials";
+import { assertProductionDatabaseUrl, isRemoteDatabaseUrl } from "@/lib/db-url";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
 function createDb() {
   const url = process.env.DATABASE_URL;
 
-  if (url && url.startsWith("libsql")) {
+  assertProductionDatabaseUrl(url);
+
+  if (isRemoteDatabaseUrl(url)) {
     const adapter = new PrismaLibSql({
       url,
-      authToken: process.env.DATABASE_AUTH_TOKEN,
+      authToken: cleanAuthToken(process.env.DATABASE_AUTH_TOKEN, "DATABASE_AUTH_TOKEN"),
     });
     return new PrismaClient({ adapter });
   }

@@ -1,0 +1,39 @@
+name: schema-drift
+
+# The production schema-drift check. This used to run inside the Vercel build
+# command, which made a Turso outage block every deploy and made each pull
+# request's preview build query the production database. `prisma generate` does
+# not need a datasource (prisma.config.ts marks it optional outside migration
+# and introspection commands) and every route builds as dynamic, so the build
+# itself never touches the database.
+#
+# Requires repository secrets TURSO_DATABASE_URL and TURSO_AUTH_TOKEN under
+# Settings -> Secrets and variables -> Actions.
+
+on:
+  schedule:
+    # Daily at 06:17 UTC. Off the hour to avoid GitHub's scheduler rush.
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --include=dev
+
+      # Exits non-zero on any missing table or column, which fails this step,
+      # the job and the run. Configure a notification on this workflow so the
+      # failure reaches you instead of waiting to be noticed.
+      - name: Check production schema drift
+        run: npm run db:check-drift:required
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}

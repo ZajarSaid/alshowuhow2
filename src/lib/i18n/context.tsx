@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, type PropsWithChildren } from "react";
 import type { Locale, Messages } from "./config";
 
 export type I18nValue = {
@@ -10,7 +10,10 @@ export type I18nValue = {
 
 const I18nContext = createContext<I18nValue | null>(null);
 
-export function I18nProvider({ value, children }: { value: I18nValue; children: React.ReactNode }) {
+// `children` is declared optional rather than required so callers can pass it as
+// createElement's third argument, which is what react/no-children-prop requires.
+// JSX usage is unaffected: <I18nProvider value={...}> supplies children implicitly.
+export function I18nProvider({ value, children }: { value: I18nValue } & PropsWithChildren) {
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 

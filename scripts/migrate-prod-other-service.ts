@@ -1,4 +1,6 @@
+import "dotenv/config";
 import { createClient } from "@libsql/client";
+import { cleanAuthToken } from "../src/lib/db-credentials";
 
 // Idempotent prod (Turso) migration for the customer "Other" service:
 //   1. ServiceRequest.otherServiceText — free-text when the customer picks "Other"
@@ -9,7 +11,7 @@ import { createClient } from "@libsql/client";
 // already applied. Existing request/vendor data is never touched.
 
 const url = process.env.TURSO_DATABASE_URL;
-const authToken = process.env.TURSO_AUTH_TOKEN;
+const authToken = cleanAuthToken(process.env.TURSO_AUTH_TOKEN);
 
 if (!url || !url.startsWith("libsql")) {
   console.error("Set TURSO_DATABASE_URL to a libsql:// URL");

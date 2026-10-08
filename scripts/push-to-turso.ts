@@ -1,9 +1,13 @@
+import "dotenv/config";
 import { createClient } from "@libsql/client";
 import { readFileSync } from "fs";
 import path from "path";
+import { cleanAuthToken } from "../src/lib/db-credentials";
 
 const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
-const authToken = process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN;
+const authToken = cleanAuthToken(
+  process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN,
+);
 
 if (!url || !url.startsWith("libsql")) {
   console.error("Set TURSO_DATABASE_URL to a libsql:// URL");
@@ -22,6 +26,10 @@ if (!url || !url.startsWith("libsql")) {
 // To change an existing database, run the idempotent migration that owns the
 // change, e.g. `npm run db:migrate-prod`. Use `npm run db:check-drift` to find
 // out what is missing. This script is only for bootstrapping an empty database.
+//
+// It is nevertheless safe to re-run against a partly-built database, because
+// every statement is guarded by IF NOT EXISTS and none of them is a write to
+// existing rows. That is the recovery path for a push which dies half way.
 
 const client = createClient({ url, authToken });
 
@@ -48,15 +56,93 @@ if (stmts.length === 0) {
   process.exit(1);
 }
 
-async function main() {
-  // executeMultiple runs the whole script in one implicit transaction, so a
-  // failure part-way through rolls back instead of leaving a half-built schema.
-  await client.executeMultiple(schema);
+// Tables this push is responsible for, used for the end-of-run report.
+const expectedTables = [
+  ...new Set(
+    [...schema.matchAll(/CREATE TABLE IF NOT EXISTS "([^"]+)"/g)].map((m) => m[1]),
+  ),
+];
 
-  console.log(`Schema pushed successfully (${stmts.length} statements).`);
+function describe(stmt: string): string {
+  const m =
+    /^CREATE TABLE IF NOT EXISTS "([^"]+)"/.exec(stmt) ??
+    /^CREATE (?:UNIQUE )?INDEX IF NOT EXISTS "([^"]+)"/.exec(stmt);
+  return m ? m[1] : stmt.split("\n")[0].slice(0, 60);
 }
 
-main().catch((e) => {
-  console.error("Schema push FAILED:", e);
-  process.exit(1);
-});
+async function main() {
+  console.log(`Target: ${url}`);
+
+  // Separate connectivity/auth from statement execution. Without this, a bad URL
+  // or token and a bad statement both surface as the same opaque failure and
+  // there is no way to tell which one you are looking at.
+  await client.execute("SELECT 1");
+  console.log("Connected. Applying statements one at a time.\n");
+
+  // Deliberately NOT client.executeMultiple(schema).
+  //
+  // executeMultiple sends the whole script through a single hrana *stream*
+  // request (@libsql/client http.js: executeMultiple -> openStream -> sequence).
+  // Turso rejected that with a bare `SERVER_ERROR: HTTP status 400` - rejected at
+  // the HTTP layer, before any statement-level error could be returned, so the
+  // failure named no statement and no SQL.
+  //
+  // That path also is not transactional. Production held exactly the first three
+  // statements of schema.sql (_prisma_migrations, User, Customer) and nothing
+  // else, which is the signature of a push that died part way rather than one
+  // that rolled back. Executing statement by statement keeps the same ordering,
+  // gives a per-statement error message, and is resumable because every
+  // statement is IF NOT EXISTS.
+  let applied = 0;
+  for (const [i, stmt] of stmts.entries()) {
+    const label = describe(stmt);
+    try {
+      await client.execute(stmt);
+      applied++;
+      console.log(`  [${i + 1}/${stmts.length}] ok   ${label}`);
+    } catch (e) {
+      console.error(
+        `\nFAILED at statement ${i + 1}/${stmts.length}: ${label}\n` +
+          `  ${(e as Error).message}\n\n` +
+          `  Statement:\n${stmt
+            .split("\n")
+            .map((l) => `    ${l}`)
+            .join("\n")}\n\n` +
+          `  ${applied} statement(s) applied before the failure. Re-run this command\n` +
+          `  to continue: every statement is IF NOT EXISTS, so applied ones are\n` +
+          `  skipped and the rest still run.\n`,
+      );
+      process.exitCode = 1;
+      return;
+    }
+  }
+
+  const res = await client.execute(
+    "SELECT name FROM sqlite_master WHERE type IN ('table','index') AND name NOT LIKE 'sqlite_%' ORDER BY name",
+  );
+  const present = res.rows.map((r) => String(r.name));
+
+  const stillMissing = expectedTables.filter((t) => !present.includes(t));
+  console.log(`\nPushed ${applied}/${stmts.length} statements.`);
+  console.log(`Tables now present (${expectedTables.length} expected):`);
+  for (const t of expectedTables) {
+    console.log(`  ${present.includes(t) ? "ok  " : "MISS"} ${t}`);
+  }
+  console.log(`Indexes present: ${present.length - expectedTables.length}`);
+
+  if (stillMissing.length) {
+    console.error(`\nStill missing after push: ${stillMissing.join(", ")}`);
+    process.exitCode = 1;
+    return;
+  }
+
+  console.log("\nOK  every table in schema.sql exists. Verify with:");
+  console.log("  npm run db:check-drift:required");
+}
+
+main()
+  .catch((e) => {
+    console.error("Schema push FAILED:", e);
+    process.exit(1);
+  })
+  .finally(() => client.close());

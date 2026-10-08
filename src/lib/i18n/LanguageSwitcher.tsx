@@ -35,6 +35,13 @@ export default function LanguageSwitcher({
     // SameSite=Lax so the cookie is sent with the app's own requests. One year is
     // long enough that a returning visitor is not asked again, short enough that
     // changing the default locale eventually reaches people.
+    //
+    // The immutability rule below is a false positive: it reads this as mutating a
+    // value owned by an outer scope, but `document.cookie` is a write to the browser's
+    // cookie jar, not to any React value. Writing it here rather than in an effect is
+    // deliberate - the switcher has no server round trip, and an effect would render
+    // once with the stale locale before correcting.
+    // eslint-disable-next-line react-hooks/immutability
     document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
     onChange?.(next);
   }

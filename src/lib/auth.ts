@@ -59,7 +59,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   session: { strategy: "jwt" },
-  // The admin console is served on its own host (admin.* via src/middleware.ts),
+  // The admin console is served on its own host (admin.* via src/proxy.ts),
   // so we must accept requests from any host pointing at this deployment.
   trustHost: true,
   cookies: {

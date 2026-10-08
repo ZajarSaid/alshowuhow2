@@ -101,7 +101,7 @@
   },
   "dashboard": {
     "vendorDashboard": "Vendor Dashboard",
-    "welcomeBack": "Welcome back{businessName ? `, ${businessName}` : \"\"}",
+    "welcomeBack": "Welcome back{businessName}",
     "settings": "Settings",
     "signOut": "Sign out",
     "newLeads": "New Leads",

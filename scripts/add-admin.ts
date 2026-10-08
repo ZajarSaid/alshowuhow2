@@ -3,6 +3,7 @@ import { PrismaLibSql } from "@prisma/adapter-libsql";
 import bcrypt from "bcryptjs";
 import path from "node:path";
 import "dotenv/config";
+import { cleanAuthToken } from "../src/lib/db-credentials";
 
 // Idempotent admin provisioning — safe to run on any environment (local SQLite
 // or production Turso). It never deletes or alters non-admin data, and
@@ -29,7 +30,9 @@ function createDb() {
   if (url && url.startsWith("libsql")) {
     const adapter = new PrismaLibSql({
       url,
-      authToken: process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN,
+      authToken: cleanAuthToken(
+        process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN,
+      ),
     });
     return new PrismaClient({ adapter });
   }

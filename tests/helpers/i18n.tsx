@@ -20,13 +20,7 @@ const DICTIONARIES: Record<Locale, Messages> = { en, es };
  * suites reading naturally. Pass a locale to assert the Spanish strings.
  */
 export function renderWithI18n(node: ReactNode, locale: Locale = DEFAULT_LOCALE) {
-  return createElement(I18nProvider, {
-    value: {
-      locale,
-      t: DICTIONARIES[locale],
-    },
-    children: node,
-  });
+  return createElement(I18nProvider, { value: { locale, t: DICTIONARIES[locale] } }, node);
 }
 
 export { DICTIONARIES };

@@ -2,6 +2,9 @@
   "name": "alshowuhow",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
@@ -23,6 +26,8 @@
     "vendor:purge-demo": "npx tsx scripts/purge-demo-vendors.ts",
     "email:test": "npx tsx scripts/test-email.ts",
     "db:check-drift": "npx tsx scripts/check-schema-drift.ts",
+    "db:diagnose-turso": "npx tsx scripts/diagnose-turso.ts",
+    "db:inspect": "npx tsx scripts/inspect-db.ts",
     "db:migrate-prod": "npx tsx scripts/migrate-prod-other-service.ts",
     "db:migrate-prod-tree": "npx tsx scripts/migrate-prod-service-tree.ts",
     "db:seed-prod-tree": "npx tsx scripts/seed-prod-service-tree.ts",

@@ -1,7 +1,9 @@
+import "dotenv/config";
 import { createClient } from "@libsql/client";
+import { cleanAuthToken } from "../src/lib/db-credentials";
 
 const url = process.env.TURSO_DATABASE_URL;
-const authToken = process.env.TURSO_AUTH_TOKEN;
+const authToken = cleanAuthToken(process.env.TURSO_AUTH_TOKEN);
 
 if (!url || !url.startsWith("libsql")) {
   console.error("Set TURSO_DATABASE_URL to a libsql:// URL");
@@ -31,9 +33,18 @@ async function main() {
   console.log("Connected to prod Turso:", url);
 
   const wanted = [
-    { column: "featured", ddl: `ALTER TABLE "Service" ADD COLUMN "featured" BOOLEAN NOT NULL DEFAULT false` },
-    { column: "sortOrder", ddl: `ALTER TABLE "Service" ADD COLUMN "sortOrder" INTEGER NOT NULL DEFAULT 999` },
-    { column: "parentId", ddl: `ALTER TABLE "Service" ADD COLUMN "parentId" TEXT` },
+    {
+      column: "featured",
+      ddl: `ALTER TABLE "Service" ADD COLUMN "featured" BOOLEAN NOT NULL DEFAULT false`,
+    },
+    {
+      column: "sortOrder",
+      ddl: `ALTER TABLE "Service" ADD COLUMN "sortOrder" INTEGER NOT NULL DEFAULT 999`,
+    },
+    {
+      column: "parentId",
+      ddl: `ALTER TABLE "Service" ADD COLUMN "parentId" TEXT`,
+    },
   ];
 
   for (const { column, ddl } of wanted) {

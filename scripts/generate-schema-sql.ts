@@ -12,6 +12,7 @@
 
 import { execFileSync } from "child_process";
 import { readFileSync, writeFileSync } from "fs";
+import { createRequire } from "module";
 import path from "path";
 
 const ROOT = process.cwd();
@@ -32,11 +33,42 @@ const MIGRATIONS_TABLE = `CREATE TABLE IF NOT EXISTS "_prisma_migrations" (
     "applied_steps_count"   INTEGER UNSIGNED NOT NULL DEFAULT 0
 );`;
 
+// Run Prisma through the current Node binary rather than through `npx`.
+//
+// `execFileSync("npx", ["prisma", ...])` cannot work on Windows. `npx` is a
+// `.cmd` shim, and spawnSync refuses to run a `.cmd`/`.bat` without `shell: true`
+// (Node >= 18.20.2 / 20.12.2, the CVE-2024-27980 mitigation), so the original
+// `"npx.cmd"` failed with `spawnSync npx.cmd EINVAL`. Dropping the extension does
+// not help either: there is no extensionless `npx` executable, so it fails with
+// `spawnSync npx ENOENT`. Both failures are confusing because they surface as an
+// opaque spawn error rather than anything to do with Prisma.
+//
+// `prisma/build/index.js` is an explicit subpath in prisma's package.json
+// "exports", so require.resolve finds it wherever npm hoisted it. `createRequire`
+// is given an absolute path rather than `import.meta.url` so this works whether
+// tsx loads this file as CommonJS or ESM.
+const PRISMA_CLI = createRequire(path.join(ROOT, "package.json")).resolve(
+  "prisma/build/index.js",
+);
+
 function generate() {
   const raw = execFileSync(
-    "npx",
-    ["prisma", "migrate", "diff", "--from-empty", "--to-schema", SCHEMA_FILE, "--script"],
-    { cwd: ROOT, encoding: "utf8", maxBuffer: 32 * 1024 * 1024, stdio: ["ignore", "pipe", "inherit"] },
+    process.execPath,
+    [
+      PRISMA_CLI,
+      "migrate",
+      "diff",
+      "--from-empty",
+      "--to-schema",
+      SCHEMA_FILE,
+      "--script",
+    ],
+    {
+      cwd: ROOT,
+      encoding: "utf8",
+      maxBuffer: 32 * 1024 * 1024,
+      stdio: ["ignore", "pipe", "inherit"],
+    },
   );
 
   // Drop Prisma's `-- CreateTable` / `-- CreateIndex` annotations. Comments must
@@ -54,26 +86,35 @@ function generate() {
     .replace(/^CREATE INDEX /gm, "CREATE INDEX IF NOT EXISTS ")
     .trim();
 
-  return (
-    [
-      "-- GENERATED FILE - DO NOT EDIT BY HAND.",
-      "-- Source of truth: prisma/schema.prisma",
-      "-- Regenerate: npm run db:schema-sql      (verify: npm run db:schema-sql:check)",
-      "",
-      MIGRATIONS_TABLE + ";",
-      "",
-      idempotent + ";",
-      "",
-    ].join("\n")
-  );
+  return [
+    "-- GENERATED FILE - DO NOT EDIT BY HAND.",
+    "-- Source of truth: prisma/schema.prisma",
+    "-- Regenerate: npm run db:schema-sql      (verify: npm run db:schema-sql:check)",
+    "",
+    MIGRATIONS_TABLE + ";",
+    "",
+    idempotent + ";",
+    "",
+  ].join("\n");
 }
 
 const next = generate();
 const check = process.argv.includes("--check");
 
+// Compare line-ending-insensitively.
+//
+// The generator always writes LF, but git checks this file out with CRLF on
+// Windows (core.autocrlf=true, and there is no .gitattributes). A raw string
+// compare therefore reported "OUT OF DATE" on every single Windows run, even
+// when prisma/schema.prisma had not changed at all - which trains you to ignore
+// the one check that exists to stop schema.sql drifting from the datamodel.
+// Normalising both sides makes the result identical on Windows, macOS, Linux
+// and CI.
+const normalize = (text: string) => text.replace(/\r\n?/g, "\n").trim();
+
 if (check) {
   const current = readFileSync(SQL_FILE, "utf-8");
-  if (current.trim() !== next.trim()) {
+  if (normalize(current) !== normalize(next)) {
     console.error(
       "\nprisma/schema.sql is OUT OF DATE with prisma/schema.prisma.\n\n" +
         "Production is deployed from schema.sql, so shipping without regenerating it\n" +
@@ -86,5 +127,7 @@ if (check) {
 } else {
   writeFileSync(SQL_FILE, next);
   const count = next.split(";").filter((s) => s.trim().length > 0).length;
-  console.log(`Wrote prisma/schema.sql (${count} statements) from prisma/schema.prisma`);
+  console.log(
+    `Wrote prisma/schema.sql (${count} statements) from prisma/schema.prisma`,
+  );
 }

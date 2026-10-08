@@ -37,6 +37,7 @@ import { randomBytes } from "crypto";
 import { writeFileSync } from "fs";
 import path from "path";
 import "dotenv/config";
+import { cleanAuthToken } from "../src/lib/db-credentials";
 
 const DEMO_PASSWORDS = (process.env.DEMO_PASSWORDS ?? "vendor123")
   .split(",")
@@ -45,7 +46,9 @@ const DEMO_PASSWORDS = (process.env.DEMO_PASSWORDS ?? "vendor123")
 
 function createDb() {
   const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
-  const authToken = process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN;
+  const authToken = cleanAuthToken(
+    process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN,
+  );
 
   if (url && url.startsWith("libsql")) {
     return new PrismaClient({ adapter: new PrismaLibSql({ url, authToken }) });
