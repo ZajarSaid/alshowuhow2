@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 
 const FROM = process.env.EMAIL_FROM || "ALshowUhow <onboarding@resend.dev>";
-const ADMIN_NOTIFY = process.env.ADMIN_NOTIFY_EMAIL || "nyc.aljoseph@gmail.com";
+const ADMIN_NOTIFY = process.env.ADMIN_NOTIFY_EMAIL || "zacharia1199@gmail.com";
 const ADMIN_NOTIFY_CC = process.env.ADMIN_NOTIFY_CC;
 const APP_URL = process.env.NEXTAUTH_URL;
 
@@ -27,7 +27,9 @@ async function adminRecipients(): Promise<string[]> {
     // DB unavailable — fall back to the env-configured recipient only.
   }
   if (ADMIN_NOTIFY_CC) {
-    for (const cc of Array.isArray(ADMIN_NOTIFY_CC) ? ADMIN_NOTIFY_CC : [ADMIN_NOTIFY_CC]) {
+    for (const cc of Array.isArray(ADMIN_NOTIFY_CC)
+      ? ADMIN_NOTIFY_CC
+      : [ADMIN_NOTIFY_CC]) {
       recipients.add(cc);
     }
   }
@@ -38,7 +40,7 @@ async function send(
   to: string | string[],
   subject: string,
   html: string,
-  cc?: string[] | string
+  cc?: string[] | string,
 ): Promise<void> {
   const resend = client();
   if (!resend) return;
@@ -92,7 +94,10 @@ export function escapeHtml(value: unknown): string {
 // Strip CR/LF (and collapse whitespace) from values interpolated into email
 // subjects/addresses to prevent header/SMTP-envelope injection.
 function sanitizeHeaderValue(value: unknown, max = 200): string {
-  return String(value ?? "").replace(/[\r\n\t]+/g, " ").trim().slice(0, max);
+  return String(value ?? "")
+    .replace(/[\r\n\t]+/g, " ")
+    .trim()
+    .slice(0, max);
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -130,7 +135,7 @@ export function sendCustomerConfirmation(input: {
   return send(
     input.email,
     "We received your service request — ALshowUhow",
-    renderCustomerConfirmation(input)
+    renderCustomerConfirmation(input),
   );
 }
 
@@ -173,7 +178,7 @@ export function sendVendorLeadAlert(input: {
   return send(
     input.email,
     "New ALshowUhow Service Opportunity",
-    renderVendorLeadAlert(input)
+    renderVendorLeadAlert(input),
   );
 }
 
@@ -194,11 +199,14 @@ export function renderVendorApproved(input: { businessName: string }): string {
     `);
 }
 
-export function sendVendorApproved(input: { businessName: string; email: string }) {
+export function sendVendorApproved(input: {
+  businessName: string;
+  email: string;
+}) {
   return send(
     input.email,
     "You're approved — start receiving leads on ALshowUhow",
-    renderVendorApproved(input)
+    renderVendorApproved(input),
   );
 }
 
@@ -238,7 +246,7 @@ export function renderAdminRequestAlert(input: AdminRequestAlertInput): string {
           <td style="padding:8px 6px;border-top:1px solid #e5e7eb;">${escapeHtml(v.email)}</td>
           <td style="padding:8px 6px;border-top:1px solid #e5e7eb;">${escapeHtml(v.phone)}</td>
           <td style="padding:8px 6px;border-top:1px solid #e5e7eb;">${escapeHtml(v.website)}</td>
-        </tr>`
+        </tr>`,
         )
         .join("")
     : '<tr><td style="padding:8px 6px;color:#6b7280;" colspan="5">No matching vendors found.</td></tr>';
@@ -277,11 +285,13 @@ export function renderAdminRequestAlert(input: AdminRequestAlertInput): string {
 }
 
 export function sendAdminRequestAlert(input: AdminRequestAlertInput) {
-  return adminRecipients().then((to) => send(
-    to,
-    `New service request — ${input.serviceName}`,
-    renderAdminRequestAlert(input)
-  ));
+  return adminRecipients().then((to) =>
+    send(
+      to,
+      `New service request — ${input.serviceName}`,
+      renderAdminRequestAlert(input),
+    ),
+  );
 }
 
 export function renderAdminVendorPendingAlert(input: {
@@ -321,9 +331,11 @@ export function sendAdminVendorPendingAlert(input: {
   services: string;
   zipCodes: string;
 }) {
-  return adminRecipients().then((to) => send(
-    to,
-    `New vendor awaits approval — ${input.businessName}`,
-    renderAdminVendorPendingAlert(input)
-  ));
+  return adminRecipients().then((to) =>
+    send(
+      to,
+      `New vendor awaits approval — ${input.businessName}`,
+      renderAdminVendorPendingAlert(input),
+    ),
+  );
 }
