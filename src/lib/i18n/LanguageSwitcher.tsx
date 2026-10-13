@@ -2,7 +2,7 @@
 
 import { LOCALE_COOKIE, LOCALES, type Locale, type Messages } from "./config";
 
-const SHORT_LABELS: Record<Locale, string> = { en: "EN", es: "ES" };
+const SHORT_LABELS: Record<Locale, string> = { en: "English", es: "Spanish" };
 
 /**
  * Language switcher.

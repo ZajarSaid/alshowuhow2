@@ -47,13 +47,19 @@ export default function Hero() {
           {t.hero.slideOneBody}
         </p>
 
-        <div className="flex justify-center">
+        <div className="flex flex-col sm:flex-row flex-wrap justify-center items-strecht sm:items-center gap-4">
           <Link
             href="/request"
             className="bg-crimson hover:bg-crimson-dark text-white px-8 py-4 rounded-lg font-bold text-base md:text-lg transition-all transform hover:scale-105 shadow-lg"
           >
             {t.hero.ctaService}
           </Link>
+          <Link
+            href="/login"
+            className="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-base md:text-lg transition-colors hover:bg-white hover:text-purple focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+          >
+            {t.auth.vendorSignIn}
+          </Link> 
         </div>
       </div>
 
